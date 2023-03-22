@@ -1,0 +1,7 @@
+.scoreboard-list {
+  font-size: 20px;
+
+  width: 400px;
+  display: flex;
+  justify-content: space-between;
+}
