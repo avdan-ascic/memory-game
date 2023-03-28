@@ -3,7 +3,7 @@ import "../assets/styles/Game.css";
 import SingleCard from "./SingleCard";
 import PlayerInput from "./PlayerInput";
 import Scoreboard from "./ScoreBoard";
-import { cardImages } from "../helpers/CardImages";
+import { cardImages } from "../helpers/Helpers";
 
 const Game = () => {
   const [cards, setCards] = useState([]);
@@ -14,18 +14,15 @@ const Game = () => {
   const [level, setLevel] = useState(1);
   const [endGame, setEndGame] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [scores, setScores] = useState([
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-    { name: "Unknown ", moves: 0 },
-  ]);
+  const [scores, setScores] = useState(generateInitialScores(10));
+
+  function generateInitialScores(numEntries) {
+    const initialScores = [];
+    for (let i = 0; i < numEntries; i++) {
+      initialScores.push({ name: "Unknown ", moves: 0 });
+    }
+    return initialScores;
+  }
 
   useEffect(() => {
     const savedScores = localStorage.getItem("scores");
@@ -44,40 +41,26 @@ const Game = () => {
       name,
       moves,
       date: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
-    };                 
+    };
+    // console.log(newScore);
 
     const sortedScores = [...scores, newScore]
       .sort((a, b) => b.moves - a.moves)
       .slice(0, 10);
+    // console.log(sortedScores);
     setScores(sortedScores);
   };
 
-  const shuffleCards = () => {
-    let numCards = 0;
-    let numMatches = 0;
-    switch (level) {
-      case 1:
-        numCards = 4;
-        numMatches = 2;
-        break;
-      case 2:
-        numCards = 16;
-        numMatches = 8;
-        break;
-      case 3:
-        numCards = 36;
-        numMatches = 18;
-        break;
-      case 4:
-        numCards = 64;
-        numMatches = 32;
-        break;
-      default:
-        numCards = 4;
-        numMatches = 2;
-        break;
-    }
+  const levelsData = [
+    { numCards: 4, numMatches: 2 },
+    { numCards: 16, numMatches: 8 },
+    { numCards: 36, numMatches: 18 },
+    { numCards: 64, numMatches: 32 },
+  ];
 
+  const { numCards, numMatches } = levelsData[level - 1];
+
+  const shuffleCards = () => {
     const randomCards = cardImages
       .sort(() => Math.random() - 0.5)
       .slice(0, numMatches);
@@ -104,16 +87,6 @@ const Game = () => {
       return;
     }
     choiceOne ? setChoiceTwo(card) : setChoiceOne(card);
-
-    const numUnmatchedCards = cards.filter((card) => !card.matched).length - 2;
-    if (numUnmatchedCards === 0) {
-      if (level === 4) {
-        setEndGame(true);
-        setTimeout(() => setShowModal(true), 2000);
-      } else {
-        setLevel((prevLevel) => prevLevel + 1);
-      }
-    }
   };
 
   useEffect(() => {
@@ -129,10 +102,16 @@ const Game = () => {
             }
           });
         });
-        console.log("match");
         resetMoves();
+        if (cards.filter((card) => !card.matched).length === 2) {
+          if (level === levelsData.length) {
+            setTimeout(() => setEndGame(true), 1000);
+            setTimeout(() => setShowModal(true), 2000);
+          } else {
+            setTimeout(() => setLevel((prevLevel) => prevLevel + 1), 1000);
+          }
+        }
       } else {
-        console.log("not match");
         setTimeout(() => resetMoves(), 1000);
       }
     }

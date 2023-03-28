@@ -7,10 +7,10 @@
 
 button {
   margin-top: 55px;
-  background-color: aquamarine;
+  background-color: #047104;
   border: 2px solid black;
   border-radius: 4px;
-  color: black;
+  color: white;
   font-weight: bold;
   cursor: pointer;
   font-size: 1em;
@@ -75,7 +75,7 @@ h1 {
 
 .message{
   
-  color: #054a04;
+  color: #047104;
   font-size: 40px;
 }
 .message p {
