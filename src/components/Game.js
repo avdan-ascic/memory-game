@@ -42,13 +42,26 @@ const Game = () => {
       moves,
       date: `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`,
     };
-    // console.log(newScore);
 
-    const sortedScores = [...scores, newScore]
-      .sort((a, b) => b.moves - a.moves)
-      .slice(0, 10);
-    // console.log(sortedScores);
-    setScores(sortedScores);
+    const curScores = [...scores];
+    let added = false;
+
+    for (let i = 0; i < 10; i++) {
+      if (curScores[i].moves === 0) {
+        curScores[i] = newScore;
+        added = true;
+        break;
+      } else if (moves < curScores[i].moves) {
+        curScores.splice(i, 0, newScore);
+        curScores.pop();
+        added = true;
+        break;
+      }
+    }
+
+    if (added) {
+      setScores(curScores);
+    }
   };
 
   const levelsData = [
@@ -106,7 +119,12 @@ const Game = () => {
         if (cards.filter((card) => !card.matched).length === 2) {
           if (level === levelsData.length) {
             setTimeout(() => setEndGame(true), 1000);
-            setTimeout(() => setShowModal(true), 2000);
+            const hasZeroMoves = scores.some((n) => n.moves === 0);
+            const hasHigherMoves = scores.some((n) => moves < n.moves);
+
+            if (hasZeroMoves || hasHigherMoves) {
+              setTimeout(() => setShowModal(true), 2000);
+            }
           } else {
             setTimeout(() => setLevel((prevLevel) => prevLevel + 1), 1000);
           }
