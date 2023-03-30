@@ -93,7 +93,7 @@ const Game = () => {
   }, [level]);
 
   const handleChoice = (card) => {
-    if (disabled) {
+    if (disabled || card.matched) {
       return;
     }
     if (card === choiceOne) {
